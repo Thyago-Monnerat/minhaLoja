@@ -1,12 +1,14 @@
 package com.thyago.MinhaLoja.business.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "tb_products")
+@Getter
 public class ProductModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
