@@ -2,20 +2,12 @@ package com.thyago.MinhaLoja.business.mappers;
 
 import com.thyago.MinhaLoja.business.models.ProductModel;
 import com.thyago.MinhaLoja.controller.dtos.ProductDto;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Component
-public class ProductMapper {
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface ProductMapper {
+    ProductDto toDto(ProductModel productModel);
 
-    public ProductDto toDto(ProductModel productModel) {
-        return new ProductDto(
-                productModel.getName(),
-                productModel.getSku(),
-                productModel.getDescription(),
-                productModel.getPrice(),
-                productModel.getQuantity(),
-                productModel.getValidity()
-        );
-
-    }
+    ProductModel toModel(ProductDto productDto);
 }
