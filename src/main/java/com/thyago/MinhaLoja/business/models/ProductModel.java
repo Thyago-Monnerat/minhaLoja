@@ -2,6 +2,7 @@ package com.thyago.MinhaLoja.business.models;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -20,7 +21,7 @@ public class ProductModel {
     private String description;
 
     @Column(nullable = false)
-    private Double price;
+    private BigDecimal price;
 
     @Column(nullable = false)
     private Integer quantity;
