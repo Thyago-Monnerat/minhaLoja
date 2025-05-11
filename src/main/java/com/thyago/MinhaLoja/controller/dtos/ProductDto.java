@@ -9,6 +9,7 @@ public record ProductDto(
         String description,
         BigDecimal price,
         Integer quantity,
-        LocalDate validity
+        LocalDate validity,
+        Long supplierId
 ) {
 }

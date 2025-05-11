@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface ProductsRepository extends JpaRepository<ProductModel, Long> {
+public interface ProductRepository extends JpaRepository<ProductModel, Long> {
     Optional<ProductModel> findBySku(String sku);
+    void deleteBySku(String sku);
 }
