@@ -4,7 +4,6 @@ import com.thyago.MinhaLoja.business.mappers.SupplierMapper;
 import com.thyago.MinhaLoja.business.models.SupplierModel;
 import com.thyago.MinhaLoja.business.repositories.SuppliersRepository;
 import com.thyago.MinhaLoja.controller.dtos.SupplierDto;
-import com.thyago.MinhaLoja.infrastructure.exceptions.ProductNotFound;
 import com.thyago.MinhaLoja.infrastructure.exceptions.SupplierAlreadyExists;
 import com.thyago.MinhaLoja.infrastructure.exceptions.SupplierNotFound;
 import lombok.RequiredArgsConstructor;
