@@ -33,7 +33,7 @@ public class ProductModel {
     @Column(nullable = false)
     private LocalDate validity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "supplier_id", nullable = false)
     private SupplierModel supplier;
 }
