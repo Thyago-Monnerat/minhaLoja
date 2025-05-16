@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface SuppliersRepository extends JpaRepository<SupplierModel, Long> {
+public interface SupplierRepository extends JpaRepository<SupplierModel, Long> {
+    Optional<SupplierModel> findByName(String name);
 
 }

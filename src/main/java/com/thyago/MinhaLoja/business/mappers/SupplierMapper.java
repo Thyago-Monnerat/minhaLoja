@@ -1,7 +1,9 @@
 package com.thyago.MinhaLoja.business.mappers;
 
 import com.thyago.MinhaLoja.business.models.SupplierModel;
-import com.thyago.MinhaLoja.controller.dtos.SupplierDto;
+import com.thyago.MinhaLoja.controller.dtos.supplierDtos.SupplierAddDto;
+import com.thyago.MinhaLoja.controller.dtos.supplierDtos.SupplierDto;
+import com.thyago.MinhaLoja.controller.dtos.supplierDtos.SupplierUpdateDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -10,7 +12,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface SupplierMapper {
     SupplierDto toDto(SupplierModel supplierModel);
 
-    SupplierModel toModel(SupplierDto supplierDto);
+    SupplierModel fromAddDtoToModel(SupplierAddDto supplierAddDto);
 
-    void updateModelFromDto(SupplierDto supplierDto, @MappingTarget SupplierModel supplierModel);
+    void updateModelFromDto(SupplierUpdateDto supplierUpdateDto, @MappingTarget SupplierModel supplierModel);
 }

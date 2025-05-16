@@ -1,9 +1,9 @@
-package com.thyago.MinhaLoja.controller.dtos;
+package com.thyago.MinhaLoja.controller.dtos.productDtos;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record ProductDto(
+public record ProductUpdateDto(
         String name,
         String sku,
         String description,

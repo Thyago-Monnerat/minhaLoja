@@ -7,5 +7,4 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<ProductModel, Long> {
     Optional<ProductModel> findBySku(String sku);
-    void deleteBySku(String sku);
 }

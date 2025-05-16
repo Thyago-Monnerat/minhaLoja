@@ -3,11 +3,14 @@ package com.thyago.MinhaLoja.business.services;
 import com.thyago.MinhaLoja.business.mappers.ProductMapper;
 import com.thyago.MinhaLoja.business.models.ProductModel;
 import com.thyago.MinhaLoja.business.repositories.ProductRepository;
-import com.thyago.MinhaLoja.controller.dtos.ProductDto;
-import com.thyago.MinhaLoja.infrastructure.exceptions.ProductAlreadyExists;
-import com.thyago.MinhaLoja.infrastructure.exceptions.ProductNotFound;
+import com.thyago.MinhaLoja.controller.dtos.productDtos.ProductAddDto;
+import com.thyago.MinhaLoja.controller.dtos.productDtos.ProductDto;
+import com.thyago.MinhaLoja.controller.dtos.productDtos.ProductUpdateDto;
+import com.thyago.MinhaLoja.infrastructure.exceptions.AlreadyExists;
+import com.thyago.MinhaLoja.infrastructure.exceptions.NotFound;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,34 +20,38 @@ public class ProductService {
 
     private final ProductRepository productsRepository;
     private final ProductMapper productMapper;
+    private final SupplierService supplierService;
 
-    private ProductModel findProductBySku(String sku) {
-        return productsRepository.findBySku(sku).orElseThrow(() -> new ProductNotFound("Product not found"));
-    }
-
+    @Transactional(readOnly = true)
     public List<ProductDto> getProducts() {
         return productsRepository.findAll().stream().map(productMapper::toDto).toList();
     }
 
-    public void addProduct(ProductDto productDto) {
-        if (productsRepository.findBySku(productDto.sku()).isPresent()) {
-            throw new ProductAlreadyExists("Product already exists");
+    @Transactional
+    public void addProduct(ProductAddDto productAddDto) {
+        if(productsRepository.findBySku(productAddDto.sku()).isPresent()){
+            throw new AlreadyExists("Product already exists");
         }
-        productsRepository.save(productMapper.toModel(productDto));
+
+        supplierService.findSupplierById(productAddDto.supplierId());
+
+        productsRepository.save(productMapper.fromAddDtoToModel(productAddDto));
     }
 
-    public void updateProduct(ProductDto productDto) {
-        ProductModel productModel = findProductBySku(productDto.sku());
+    @Transactional
+    public void updateProduct(Long id, ProductUpdateDto productUpdateDto) {
+        ProductModel productModel = productsRepository.findById((id)).orElseThrow(()-> new NotFound("Product not found"));
 
-        productMapper.updateModelFromDto(productDto, productModel);
+        productMapper.updateModelFromDto(productUpdateDto, productModel);
 
         productsRepository.save(productModel);
     }
 
-    public void deleteProductBySku(String sku) {
-        ProductModel productModel = findProductBySku(sku);
+    @Transactional
+    public void deleteProductById(Long id) {
+        productsRepository.findById(id).orElseThrow(()->new NotFound("Product not found"));
 
-        productsRepository.deleteBySku(productModel.getSku());
+        productsRepository.deleteById(id);
     }
 
 }

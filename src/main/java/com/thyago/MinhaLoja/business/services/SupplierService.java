@@ -2,12 +2,15 @@ package com.thyago.MinhaLoja.business.services;
 
 import com.thyago.MinhaLoja.business.mappers.SupplierMapper;
 import com.thyago.MinhaLoja.business.models.SupplierModel;
-import com.thyago.MinhaLoja.business.repositories.SuppliersRepository;
-import com.thyago.MinhaLoja.controller.dtos.SupplierDto;
-import com.thyago.MinhaLoja.infrastructure.exceptions.SupplierAlreadyExists;
-import com.thyago.MinhaLoja.infrastructure.exceptions.SupplierNotFound;
+import com.thyago.MinhaLoja.business.repositories.SupplierRepository;
+import com.thyago.MinhaLoja.controller.dtos.supplierDtos.SupplierAddDto;
+import com.thyago.MinhaLoja.controller.dtos.supplierDtos.SupplierDto;
+import com.thyago.MinhaLoja.controller.dtos.supplierDtos.SupplierUpdateDto;
+import com.thyago.MinhaLoja.infrastructure.exceptions.AlreadyExists;
+import com.thyago.MinhaLoja.infrastructure.exceptions.NotFound;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,36 +18,39 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SupplierService {
 
-    private final SuppliersRepository suppliersRepository;
+    private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
 
-    private SupplierModel findSupplierById(Long id) {
-        return suppliersRepository.findById(id).orElseThrow(() -> new SupplierNotFound("Supplier not found"));
+    protected void findSupplierById(Long id) {
+        supplierRepository.findById(id).orElseThrow(() -> new NotFound("Supplier not found"));
     }
 
+    @Transactional(readOnly = true)
     public List<SupplierDto> getSuppliers() {
-        return suppliersRepository.findAll().stream().map(supplierMapper::toDto).toList();
+        return supplierRepository.findAll().stream().map(supplierMapper::toDto).toList();
     }
 
-    public void addSupplier(SupplierDto supplierDto) {
-        if (suppliersRepository.findById(supplierDto.id()).isPresent()) {
-            throw new SupplierAlreadyExists("Supplier already exists");
+    @Transactional
+    public void addSupplier(SupplierAddDto supplierAddDto) {
+        if (supplierRepository.findByName(supplierAddDto.name()).isPresent()) {
+            throw new AlreadyExists("Supplier already exists");
         }
-        suppliersRepository.save(supplierMapper.toModel(supplierDto));
+
+        supplierRepository.save(supplierMapper.fromAddDtoToModel(supplierAddDto));
     }
 
-    public void updateSupplier(SupplierDto supplierDto) {
-        SupplierModel supplierModel = findSupplierById(supplierDto.id());
+    @Transactional
+    public void updateSupplier(Long id, SupplierUpdateDto supplierUpdateDto) {
+        SupplierModel supplierModel = supplierRepository.findById((id)).orElseThrow(()-> new NotFound("Supplier not found"));
 
-        supplierMapper.updateModelFromDto(supplierDto, supplierModel);
+        supplierMapper.updateModelFromDto(supplierUpdateDto, supplierModel);
 
-        suppliersRepository.save(supplierModel);
+        supplierRepository.save(supplierModel);
     }
 
-    public void deleteSupplier(SupplierDto supplierDto) {
-        SupplierModel supplierModel = findSupplierById(supplierDto.id());
-
-        suppliersRepository.deleteById(supplierModel.getId());
+    @Transactional
+    public void deleteSupplier(Long id) {
+        supplierRepository.deleteById(id);
     }
 }
 
