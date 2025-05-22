@@ -42,9 +42,13 @@ public class ProductService {
     public void updateProduct(Long id, ProductUpdateDto productUpdateDto) {
         ProductModel productModel = productsRepository.findById((id)).orElseThrow(()-> new NotFound("Product not found"));
 
-        productMapper.updateModelFromDto(productUpdateDto, productModel);
+        productsRepository.findByName(productUpdateDto.name()).ifPresent(actualProduct ->{
+            if(!actualProduct.getId().equals(id)){
+                throw new AlreadyExists("Can't update, product name already exists");
+            }
+        });
 
-        productsRepository.save(productModel);
+        productMapper.updateModelFromDto(productUpdateDto, productModel);
     }
 
     @Transactional
