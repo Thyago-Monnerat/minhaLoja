@@ -5,15 +5,20 @@ Sistema CRUD de produtos e fornecedores, onde para cada fornecedor, poderá have
 
 Nesse projeto, um produto só poderá ser registrado se houver um fornecedor previamente registrado. Utilizando o mapeamento @ManyToOne e @OneToMany entre as classes de produto e fornecedor.
 
+## Documentação:
+
 ![Swagger do projeto](swaggerimg.png)
+
+### Desenvolvi testes unitários, com JUnit 5 + Mockito, para cada método das classes de serviço de product e supplier
+
 
 Dependências Gradle:
 - MapStruct
 - Spring Web
 - Spring JPA
 - H2
-- OpenAPI/Swagger 
-
+- OpenAPI/Swagger
+- 
 ### Schemas utilizados
 
 #### SupplierAddDto

@@ -43,6 +43,12 @@ public class SupplierService {
     public void updateSupplier(Long id, SupplierUpdateDto supplierUpdateDto) {
         SupplierModel supplierModel = supplierRepository.findById((id)).orElseThrow(()-> new NotFound("Supplier not found"));
 
+        supplierRepository.findByName(supplierUpdateDto.name()).ifPresent(supplier ->{
+            if(!supplier.getId().equals(id)){
+                throw new AlreadyExists("Can't update, supplier name already exists");
+            }
+        });
+
         supplierMapper.updateModelFromDto(supplierUpdateDto, supplierModel);
 
         supplierRepository.save(supplierModel);
@@ -50,6 +56,7 @@ public class SupplierService {
 
     @Transactional
     public void deleteSupplier(Long id) {
+        supplierRepository.findById(id).orElseThrow(()->new NotFound("Supplier not found"));
         supplierRepository.deleteById(id);
     }
 }
