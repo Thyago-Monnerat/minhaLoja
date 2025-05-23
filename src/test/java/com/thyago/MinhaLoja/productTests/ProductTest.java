@@ -13,6 +13,7 @@ import com.thyago.MinhaLoja.infrastructure.exceptions.AlreadyExists;
 import com.thyago.MinhaLoja.infrastructure.exceptions.NotFound;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -61,7 +62,7 @@ public class ProductTest {
         );
 
         productUpdateDto = new ProductUpdateDto(
-                "SKU",
+                "NAME",
                 "SKU123",
                 "",
                 BigDecimal.ZERO,
@@ -72,7 +73,7 @@ public class ProductTest {
 
         productDto = new ProductDto(
                 1L,
-                "SKU",
+                "NAME",
                 "SKU",
                 "",
                 BigDecimal.ZERO,
@@ -82,7 +83,8 @@ public class ProductTest {
     }
 
     @Test
-    void shouldReturnsAllProduct() {
+    @DisplayName("Should return a list with registered products")
+    void shouldReturnAllProduct() {
         when(productRepository.findAll()).thenReturn(List.of(productModel));
         when(productMapper.toDto(productModel)).thenReturn(productDto);
 
@@ -95,6 +97,7 @@ public class ProductTest {
     }
 
     @Test
+    @DisplayName("Should add a product")
     void shouldAddAProduct() {
         SupplierModel supplierModel = new SupplierModel();
 
@@ -110,6 +113,7 @@ public class ProductTest {
     }
 
     @Test
+    @DisplayName("Should throw a not found exception if the product supplier is not found by id")
     void shouldThrowNotFoundWhenAddProductWithoutSupplier() {
         doThrow(new NotFound("Supplier not found"))
                 .when(supplierService).findSupplierById(1L);
@@ -123,6 +127,7 @@ public class ProductTest {
     }
 
     @Test
+    @DisplayName("Should throw a already exists exception when trying to add a product with duplicate sku")
     void shouldThrowAlreadyExistsWhenAddDupeProduct() {
         when(productRepository.findBySku(productAddDto.sku()))
                 .thenReturn(Optional.of(new ProductModel()));
@@ -135,6 +140,7 @@ public class ProductTest {
     }
 
     @Test
+    @DisplayName("Should update a existent product")
     void shouldUpdateAProduct() {
         ProductModel existingProduct = new ProductModel();
         existingProduct.setSku("SKU");
@@ -155,6 +161,7 @@ public class ProductTest {
     }
 
     @Test
+    @DisplayName("Should throw not found exception when trying to update a product with a non existent id")
     void shouldThrowNotFoundWhenUpdateANonExistentProduct() {
         when(productRepository.findById(1L))
                 .thenReturn(Optional.empty());
@@ -169,6 +176,25 @@ public class ProductTest {
     }
 
     @Test
+    @DisplayName("Should throw already exists exception when trying to update a product with duplicate name")
+    void shouldThrowAlreadyExistsWhenUpdatingProductWithExistingName() {
+        when(productRepository.findByName("NAME"))
+                .thenReturn(Optional.of(productModel));
+        when(productRepository.findById(2L))
+                .thenReturn(Optional.of(productModel));
+
+
+        Assertions.assertThrows(AlreadyExists.class, () ->
+                productService.updateProduct(2L, productUpdateDto)
+        );
+
+        verify(productRepository).findByName("NAME");
+        verify(productRepository, never()).save(any());
+    }
+
+
+    @Test
+    @DisplayName("Should delete a existent product")
     void shouldDeleteAProduct() {
         when(productRepository.findById(1L)).thenReturn(Optional.of(productModel));
 
@@ -178,6 +204,7 @@ public class ProductTest {
     }
 
     @Test
+    @DisplayName("Should throw a not found exception when trying to delete a non existent product")
     void shouldThrowNotFoundWhenDeleteAProduct() {
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
