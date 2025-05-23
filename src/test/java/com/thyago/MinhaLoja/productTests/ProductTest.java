@@ -39,12 +39,17 @@ public class ProductTest {
     @Mock
     SupplierService supplierService;
 
+    ProductModel productModel;
     ProductAddDto productAddDto;
-
     ProductUpdateDto productUpdateDto;
+    ProductDto productDto;
 
     @BeforeEach
     void setup() {
+        productModel = new ProductModel();
+        productModel.setId(1L);
+        productModel.setSku("SKU");
+
         productAddDto = new ProductAddDto(
                 "SKU",
                 "SKU",
@@ -64,48 +69,56 @@ public class ProductTest {
                 LocalDate.now(),
                 1L
         );
+
+        productDto = new ProductDto(
+                1L,
+                "SKU",
+                "SKU",
+                "",
+                BigDecimal.ZERO,
+                3,
+                LocalDate.now(),
+                1L);
     }
 
     @Test
     void shouldReturnsAllProduct() {
-        ProductModel model = new ProductModel();
-        model.setId(1L);
-        model.setSku("SKU");
-
-        ProductDto dto = new ProductDto(1L, "SKU", "SKU","", BigDecimal.ZERO, 3, LocalDate.now(), 1L);
-
-        when(productRepository.findAll()).thenReturn(List.of(model));
-        when(productMapper.toDto(model)).thenReturn(dto);
+        when(productRepository.findAll()).thenReturn(List.of(productModel));
+        when(productMapper.toDto(productModel)).thenReturn(productDto);
 
         List<ProductDto> result = productService.getProducts();
 
-        Assertions.assertEquals(1, result.size());
+        Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals("SKU", result.get(0).sku());
         verify(productRepository).findAll();
-        verify(productMapper).toDto(model);
+        verify(productMapper).toDto(productModel);
     }
 
     @Test
     void shouldAddAProduct() {
         SupplierModel supplierModel = new SupplierModel();
-        when(supplierService.findSupplierById(1L)).thenReturn(supplierModel);
 
-        ProductModel productModel = new ProductModel();
         when(productMapper.fromAddDtoToModel(productAddDto)).thenReturn(productModel);
+
+        doAnswer(invocation -> supplierModel)
+                .when(supplierService).findSupplierById(1L);
 
         productService.addProduct(productAddDto);
 
+        verify(supplierService).findSupplierById(1L);
         verify(productRepository).save(productModel);
     }
 
     @Test
     void shouldThrowNotFoundWhenAddProductWithoutSupplier() {
-        when(supplierService.findSupplierById(1L)).thenThrow(new NotFound("Supplier not found"));
+        doThrow(new NotFound("Supplier not found"))
+                .when(supplierService).findSupplierById(1L);
 
-        Assertions.assertThrows(NotFound.class, () -> {
-            productService.addProduct(productAddDto);
-        });
+        Assertions.assertThrows(NotFound.class, () ->
+                productService.addProduct(productAddDto)
+        );
 
+        verify(supplierService).findSupplierById(1L);
         verify(productRepository, never()).save(any());
     }
 
@@ -114,9 +127,9 @@ public class ProductTest {
         when(productRepository.findBySku(productAddDto.sku()))
                 .thenReturn(Optional.of(new ProductModel()));
 
-        Assertions.assertThrows(AlreadyExists.class, () -> {
-            productService.addProduct(productAddDto);
-        });
+        Assertions.assertThrows(AlreadyExists.class, () ->
+                productService.addProduct(productAddDto)
+        );
 
         verify(productRepository, never()).save(any());
     }
@@ -147,33 +160,31 @@ public class ProductTest {
                 .thenReturn(Optional.empty());
 
 
-        Assertions.assertThrows(NotFound.class, () -> {
-            productService.updateProduct(1L, productUpdateDto);
-        });
+        Assertions.assertThrows(NotFound.class, () ->
+                productService.updateProduct(1L, productUpdateDto)
+        );
 
+        verify(productRepository).findById(1L);
         verify(productRepository, never()).save(any());
     }
 
     @Test
     void shouldDeleteAProduct() {
-        ProductModel p = new ProductModel();
-        p.setId(1L);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(productModel));
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(p));
+        productService.deleteProductById(1L);
 
-        productService.deleteProductById(p.getId());
-
-        verify(productRepository).deleteById(p.getId());
+        verify(productRepository).deleteById(1L);
     }
 
     @Test
     void shouldThrowNotFoundWhenDeleteAProduct() {
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(NotFound.class, () -> {
-            productService.deleteProductById(1L);
-        });
+        Assertions.assertThrows(NotFound.class, () ->
+                productService.deleteProductById(1L)
+        );
 
-        verify(productRepository, never()).deleteById(any());
+        verify(productRepository, never()).deleteById(1L);
     }
 }

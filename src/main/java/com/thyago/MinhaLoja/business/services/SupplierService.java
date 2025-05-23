@@ -21,8 +21,8 @@ public class SupplierService {
     private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
 
-    public SupplierModel findSupplierById(Long id) {
-        return supplierRepository.findById(id).orElseThrow(() -> new NotFound("Supplier not found"));
+    public void findSupplierById(Long id) {
+        supplierRepository.findById(id).orElseThrow(() -> new NotFound("Supplier not found"));
     }
 
     @Transactional(readOnly = true)
